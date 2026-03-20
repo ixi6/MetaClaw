@@ -120,6 +120,33 @@ def _dict_to_namespace(obj):
 
 
 # ------------------------------------------------------------------ #
+# loss_mask injection                                                  #
+# ------------------------------------------------------------------ #
+
+def _inject_loss_mask(datums: Sequence) -> list:
+    """Ensure every Datum has a ``loss_mask`` in its ``loss_fn_inputs``.
+
+    MetaClaw's data_formatter deliberately omits ``loss_mask`` because
+    Tinker rejects unknown keys.  Weaver's ``importance_sampling``
+    requires it.  We derive it from ``advantages``: any position with
+    a non-zero advantage is part of the response (mask=1).
+    """
+    import torch
+
+    patched: list = []
+    for datum in datums:
+        inputs = datum.loss_fn_inputs
+        if "loss_mask" not in inputs:
+            adv = inputs.get("advantages")
+            if adv is not None:
+                if not isinstance(adv, torch.Tensor):
+                    adv = torch.as_tensor(adv)
+                inputs["loss_mask"] = (adv != 0.0).to(torch.long)
+        patched.append(datum)
+    return patched
+
+
+# ------------------------------------------------------------------ #
 # TrainingClient wrapper                                               #
 # ------------------------------------------------------------------ #
 
@@ -144,6 +171,12 @@ class _TrainingClientWrapper:
                 loss_fn,
                 sorted(_SUPPORTED_LOSS_FNS),
             )
+        # Weaver's importance_sampling requires an explicit loss_mask field
+        # in loss_fn_inputs.  MetaClaw's data_formatter omits it (Tinker
+        # rejects unknown keys) but encodes the same information in the
+        # advantages (0.0 for masked positions).  Inject loss_mask here so
+        # upper-layer code needs no change.
+        datums = _inject_loss_mask(datums)
         return await asyncio.to_thread(
             self._inner.forward_backward, datums, loss_fn, wait=True, **kwargs,
         )
