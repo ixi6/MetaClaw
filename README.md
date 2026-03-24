@@ -104,7 +104,7 @@ Serving, reward modeling, and training are fully decoupled. The agent continues 
 
 ### 1. Install
 
-**OpenClaw (one-click):** the snippet below downloads [`metaclaw-plugin.zip`](https://github.com/aiming-lab/MetaClaw/releases/download/v0.3.3/metaclaw-plugin.zip) from [v0.3.3](https://github.com/aiming-lab/MetaClaw/releases/tag/v0.3.3), unpacks it to `~/.openclaw/extensions/metaclaw-openclaw`, enables the plugin, and restarts the gateway—then run `metaclaw setup` and `metaclaw start`. For the full installation walkthrough (Windows, mirrors, configuration, troubleshooting), see [`extensions/metaclaw-openclaw/README.md`](./extensions/metaclaw-openclaw/README.md).
+**OpenClaw (one-click):** use the [v0.3.3](https://github.com/aiming-lab/MetaClaw/releases/tag/v0.3.3) release—run the snippet below, then `metaclaw setup` and `metaclaw start`. More detail (Windows, mirrors, config, troubleshooting): [`extensions/metaclaw-openclaw/README.md`](./extensions/metaclaw-openclaw/README.md).
 
 ```bash
 curl -LO https://github.com/aiming-lab/MetaClaw/releases/download/v0.3.3/metaclaw-plugin.zip
